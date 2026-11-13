@@ -1,0 +1,29 @@
+# Auto light/dark theme. Copy to /config/themes/ and add to configuration.yaml:
+#   frontend:
+#     themes: !include_dir_merge_named themes
+modern_lighting:
+  modes:
+    light:
+      primary-color: "#F5A524"
+      accent-color: "#F5A524"
+      primary-background-color: "#EEF1F6"
+      secondary-background-color: "#E3E8F0"
+      lovelace-background: "linear-gradient(160deg,#F4F6FA 0%,#E6EBF3 100%)"
+      card-background-color: "rgba(255,255,255,0.75)"
+      ha-card-background: "rgba(255,255,255,0.75)"
+      ha-card-border-radius: "22px"
+      ha-card-box-shadow: "0 6px 24px rgba(30,40,70,0.08)"
+      primary-text-color: "#1B2230"
+      secondary-text-color: "#6B7487"
+    dark:
+      primary-color: "#FFB84D"
+      accent-color: "#FFB84D"
+      primary-background-color: "#0E1117"
+      secondary-background-color: "#161B24"
+      lovelace-background: "radial-gradient(circle at 20% 0%,#1B2233 0%,#0B0E14 70%)"
+      card-background-color: "rgba(30,36,50,0.55)"
+      ha-card-background: "rgba(30,36,50,0.55)"
+      ha-card-border-radius: "22px"
+      ha-card-box-shadow: "0 8px 32px rgba(0,0,0,0.45)"
+      primary-text-color: "#F1F4FA"
+      secondary-text-color: "#8E99B0"

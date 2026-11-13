@@ -1,0 +1,416 @@
+# Modern Lighting Dashboard
+# Requires (HACS): mushroom, card-mod.  Theme: themes/modern_lighting.yaml
+# EDIT the entity IDs to match your lights / automations.
+title: Lighting
+views:
+  - title: Overview
+    path: overview
+    icon: mdi:lightbulb-group
+    type: sections
+    max_columns: 4
+    sections:
+      - type: grid
+        cards:
+          - type: custom:mushroom-title-card
+            title: Lighting
+            subtitle: "{{ states.light | selectattr('state','eq','on') | list | length }} of {{ states.light | list | length }} lights on"
+          - type: custom:mushroom-chips-card
+            alignment: start
+            chips:
+              - type: template
+                icon: mdi:lightbulb-off-outline
+                content: All off
+                tap_action:
+                  action: call-service
+                  service: light.turn_off
+                  target: {entity_id: all}
+              - type: template
+                icon: mdi:lightbulb-on
+                content: All on
+                tap_action:
+                  action: call-service
+                  service: light.turn_on
+                  data: {brightness_pct: 80}
+                  target: {entity_id: all}
+              - type: template
+                icon: mdi:weather-night
+                content: Night
+                tap_action:
+                  action: call-service
+                  service: light.turn_on
+                  data: {brightness_pct: 15, kelvin: 2200}
+                  target: {entity_id: [light.living_room_lamp, light.bedside_left, light.bedside_right]}
+      - type: grid
+        cards:
+          - type: custom:mushroom-title-card
+            title: Master brightness
+          - type: custom:mushroom-light-card
+            entity: group.all_lights   # or a light group entity
+            name: All lights
+            icon: mdi:home-lightbulb
+            show_brightness_control: true
+            use_light_color: true
+            fill_container: true
+      - type: grid
+        cards:
+          - type: custom:mushroom-title-card
+            title: Automations
+          - type: custom:mushroom-entity-card
+            entity: automation.motion_lights
+            name: Motion lighting
+            icon: mdi:motion-sensor
+            tap_action: {action: toggle}
+          - type: custom:mushroom-entity-card
+            entity: automation.sunset_lights
+            name: Sunset schedule
+            icon: mdi:weather-sunset
+            tap_action: {action: toggle}
+          - type: custom:mushroom-entity-card
+            entity: input_boolean.lights_away_mode
+            name: Away simulation
+            icon: mdi:shield-home
+            tap_action: {action: toggle}
+      - type: grid
+        cards:
+          - type: custom:mushroom-template-card
+            primary: Living Room
+            secondary: >-
+              {% set n = ['light.living_room_ceiling', 'light.living_room_lamp', 'light.living_room_strip'] | select('is_state','on') | list | length %}
+              {{ n }} of 3 on
+            icon: mdi:sofa
+            icon_color: >-
+              {{ 'amber' if ['light.living_room_ceiling', 'light.living_room_lamp', 'light.living_room_strip'] | select('is_state','on') | list | length > 0 else 'grey' }}
+            tap_action:
+              action: navigate
+              navigation_path: /lovelace-lighting/living-room
+      - type: grid
+        cards:
+          - type: custom:mushroom-template-card
+            primary: Kitchen
+            secondary: >-
+              {% set n = ['light.kitchen_ceiling', 'light.kitchen_under_cabinet'] | select('is_state','on') | list | length %}
+              {{ n }} of 2 on
+            icon: mdi:countertop
+            icon_color: >-
+              {{ 'amber' if ['light.kitchen_ceiling', 'light.kitchen_under_cabinet'] | select('is_state','on') | list | length > 0 else 'grey' }}
+            tap_action:
+              action: navigate
+              navigation_path: /lovelace-lighting/kitchen
+      - type: grid
+        cards:
+          - type: custom:mushroom-template-card
+            primary: Bedroom
+            secondary: >-
+              {% set n = ['light.bedroom_ceiling', 'light.bedside_left', 'light.bedside_right'] | select('is_state','on') | list | length %}
+              {{ n }} of 3 on
+            icon: mdi:bed
+            icon_color: >-
+              {{ 'amber' if ['light.bedroom_ceiling', 'light.bedside_left', 'light.bedside_right'] | select('is_state','on') | list | length > 0 else 'grey' }}
+            tap_action:
+              action: navigate
+              navigation_path: /lovelace-lighting/bedroom
+      - type: grid
+        cards:
+          - type: custom:mushroom-template-card
+            primary: Office
+            secondary: >-
+              {% set n = ['light.office_ceiling', 'light.office_desk'] | select('is_state','on') | list | length %}
+              {{ n }} of 2 on
+            icon: mdi:desk
+            icon_color: >-
+              {{ 'amber' if ['light.office_ceiling', 'light.office_desk'] | select('is_state','on') | list | length > 0 else 'grey' }}
+            tap_action:
+              action: navigate
+              navigation_path: /lovelace-lighting/office
+  - title: Living Room
+    path: living-room
+    icon: mdi:sofa
+    type: sections
+    max_columns: 3
+    sections:
+      - type: grid
+        cards:
+          - type: custom:mushroom-title-card
+            title: Living Room
+          - type: custom:mushroom-chips-card
+            chips:
+              - type: template
+                icon: mdi:power
+                content: Room off
+                tap_action:
+                  action: call-service
+                  service: light.turn_off
+                  target: {entity_id: ['light.living_room_ceiling', 'light.living_room_lamp', 'light.living_room_strip']}
+              - type: template
+                icon: mdi:brightness-6
+                content: Warm 50%
+                tap_action:
+                  action: call-service
+                  service: light.turn_on
+                  data: {brightness_pct: 50, kelvin: 2700}
+                  target: {entity_id: ['light.living_room_ceiling', 'light.living_room_lamp', 'light.living_room_strip']}
+              - type: template
+                icon: mdi:white-balance-sunny
+                content: Bright
+                tap_action:
+                  action: call-service
+                  service: light.turn_on
+                  data: {brightness_pct: 100, kelvin: 4500}
+                  target: {entity_id: ['light.living_room_ceiling', 'light.living_room_lamp', 'light.living_room_strip']}
+      - type: grid
+        columns: 2
+        cards:
+          - type: custom:mushroom-light-card
+            entity: light.living_room_ceiling
+            layout: vertical
+            use_light_color: true
+            show_brightness_control: true
+            show_color_temp_control: true
+            show_color_control: true
+            collapsible_controls: true
+            fill_container: true
+            tap_action: {action: toggle}
+            hold_action: {action: more-info}
+            card_mod:
+              style: |
+                ha-card { backdrop-filter: blur(14px); border: 1px solid rgba(255,255,255,0.08); }
+          - type: custom:mushroom-light-card
+            entity: light.living_room_lamp
+            layout: vertical
+            use_light_color: true
+            show_brightness_control: true
+            show_color_temp_control: true
+            show_color_control: true
+            collapsible_controls: true
+            fill_container: true
+            tap_action: {action: toggle}
+            hold_action: {action: more-info}
+            card_mod:
+              style: |
+                ha-card { backdrop-filter: blur(14px); border: 1px solid rgba(255,255,255,0.08); }
+          - type: custom:mushroom-light-card
+            entity: light.living_room_strip
+            layout: vertical
+            use_light_color: true
+            show_brightness_control: true
+            show_color_temp_control: true
+            show_color_control: true
+            collapsible_controls: true
+            fill_container: true
+            tap_action: {action: toggle}
+            hold_action: {action: more-info}
+            card_mod:
+              style: |
+                ha-card { backdrop-filter: blur(14px); border: 1px solid rgba(255,255,255,0.08); }
+  - title: Kitchen
+    path: kitchen
+    icon: mdi:countertop
+    type: sections
+    max_columns: 3
+    sections:
+      - type: grid
+        cards:
+          - type: custom:mushroom-title-card
+            title: Kitchen
+          - type: custom:mushroom-chips-card
+            chips:
+              - type: template
+                icon: mdi:power
+                content: Room off
+                tap_action:
+                  action: call-service
+                  service: light.turn_off
+                  target: {entity_id: ['light.kitchen_ceiling', 'light.kitchen_under_cabinet']}
+              - type: template
+                icon: mdi:brightness-6
+                content: Warm 50%
+                tap_action:
+                  action: call-service
+                  service: light.turn_on
+                  data: {brightness_pct: 50, kelvin: 2700}
+                  target: {entity_id: ['light.kitchen_ceiling', 'light.kitchen_under_cabinet']}
+              - type: template
+                icon: mdi:white-balance-sunny
+                content: Bright
+                tap_action:
+                  action: call-service
+                  service: light.turn_on
+                  data: {brightness_pct: 100, kelvin: 4500}
+                  target: {entity_id: ['light.kitchen_ceiling', 'light.kitchen_under_cabinet']}
+      - type: grid
+        columns: 2
+        cards:
+          - type: custom:mushroom-light-card
+            entity: light.kitchen_ceiling
+            layout: vertical
+            use_light_color: true
+            show_brightness_control: true
+            show_color_temp_control: true
+            show_color_control: true
+            collapsible_controls: true
+            fill_container: true
+            tap_action: {action: toggle}
+            hold_action: {action: more-info}
+            card_mod:
+              style: |
+                ha-card { backdrop-filter: blur(14px); border: 1px solid rgba(255,255,255,0.08); }
+          - type: custom:mushroom-light-card
+            entity: light.kitchen_under_cabinet
+            layout: vertical
+            use_light_color: true
+            show_brightness_control: true
+            show_color_temp_control: true
+            show_color_control: true
+            collapsible_controls: true
+            fill_container: true
+            tap_action: {action: toggle}
+            hold_action: {action: more-info}
+            card_mod:
+              style: |
+                ha-card { backdrop-filter: blur(14px); border: 1px solid rgba(255,255,255,0.08); }
+  - title: Bedroom
+    path: bedroom
+    icon: mdi:bed
+    type: sections
+    max_columns: 3
+    sections:
+      - type: grid
+        cards:
+          - type: custom:mushroom-title-card
+            title: Bedroom
+          - type: custom:mushroom-chips-card
+            chips:
+              - type: template
+                icon: mdi:power
+                content: Room off
+                tap_action:
+                  action: call-service
+                  service: light.turn_off
+                  target: {entity_id: ['light.bedroom_ceiling', 'light.bedside_left', 'light.bedside_right']}
+              - type: template
+                icon: mdi:brightness-6
+                content: Warm 50%
+                tap_action:
+                  action: call-service
+                  service: light.turn_on
+                  data: {brightness_pct: 50, kelvin: 2700}
+                  target: {entity_id: ['light.bedroom_ceiling', 'light.bedside_left', 'light.bedside_right']}
+              - type: template
+                icon: mdi:white-balance-sunny
+                content: Bright
+                tap_action:
+                  action: call-service
+                  service: light.turn_on
+                  data: {brightness_pct: 100, kelvin: 4500}
+                  target: {entity_id: ['light.bedroom_ceiling', 'light.bedside_left', 'light.bedside_right']}
+      - type: grid
+        columns: 2
+        cards:
+          - type: custom:mushroom-light-card
+            entity: light.bedroom_ceiling
+            layout: vertical
+            use_light_color: true
+            show_brightness_control: true
+            show_color_temp_control: true
+            show_color_control: true
+            collapsible_controls: true
+            fill_container: true
+            tap_action: {action: toggle}
+            hold_action: {action: more-info}
+            card_mod:
+              style: |
+                ha-card { backdrop-filter: blur(14px); border: 1px solid rgba(255,255,255,0.08); }
+          - type: custom:mushroom-light-card
+            entity: light.bedside_left
+            layout: vertical
+            use_light_color: true
+            show_brightness_control: true
+            show_color_temp_control: true
+            show_color_control: true
+            collapsible_controls: true
+            fill_container: true
+            tap_action: {action: toggle}
+            hold_action: {action: more-info}
+            card_mod:
+              style: |
+                ha-card { backdrop-filter: blur(14px); border: 1px solid rgba(255,255,255,0.08); }
+          - type: custom:mushroom-light-card
+            entity: light.bedside_right
+            layout: vertical
+            use_light_color: true
+            show_brightness_control: true
+            show_color_temp_control: true
+            show_color_control: true
+            collapsible_controls: true
+            fill_container: true
+            tap_action: {action: toggle}
+            hold_action: {action: more-info}
+            card_mod:
+              style: |
+                ha-card { backdrop-filter: blur(14px); border: 1px solid rgba(255,255,255,0.08); }
+  - title: Office
+    path: office
+    icon: mdi:desk
+    type: sections
+    max_columns: 3
+    sections:
+      - type: grid
+        cards:
+          - type: custom:mushroom-title-card
+            title: Office
+          - type: custom:mushroom-chips-card
+            chips:
+              - type: template
+                icon: mdi:power
+                content: Room off
+                tap_action:
+                  action: call-service
+                  service: light.turn_off
+                  target: {entity_id: ['light.office_ceiling', 'light.office_desk']}
+              - type: template
+                icon: mdi:brightness-6
+                content: Warm 50%
+                tap_action:
+                  action: call-service
+                  service: light.turn_on
+                  data: {brightness_pct: 50, kelvin: 2700}
+                  target: {entity_id: ['light.office_ceiling', 'light.office_desk']}
+              - type: template
+                icon: mdi:white-balance-sunny
+                content: Bright
+                tap_action:
+                  action: call-service
+                  service: light.turn_on
+                  data: {brightness_pct: 100, kelvin: 4500}
+                  target: {entity_id: ['light.office_ceiling', 'light.office_desk']}
+      - type: grid
+        columns: 2
+        cards:
+          - type: custom:mushroom-light-card
+            entity: light.office_ceiling
+            layout: vertical
+            use_light_color: true
+            show_brightness_control: true
+            show_color_temp_control: true
+            show_color_control: true
+            collapsible_controls: true
+            fill_container: true
+            tap_action: {action: toggle}
+            hold_action: {action: more-info}
+            card_mod:
+              style: |
+                ha-card { backdrop-filter: blur(14px); border: 1px solid rgba(255,255,255,0.08); }
+          - type: custom:mushroom-light-card
+            entity: light.office_desk
+            layout: vertical
+            use_light_color: true
+            show_brightness_control: true
+            show_color_temp_control: true
+            show_color_control: true
+            collapsible_controls: true
+            fill_container: true
+            tap_action: {action: toggle}
+            hold_action: {action: more-info}
+            card_mod:
+              style: |
+                ha-card { backdrop-filter: blur(14px); border: 1px solid rgba(255,255,255,0.08); }
